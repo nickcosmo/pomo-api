@@ -1,7 +1,6 @@
 // import packages
 const express = require("express");
 const bodyParser = require("body-parser");
-// const { MongoClient } = require("mongodb");
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -38,10 +37,9 @@ async function connect() {
         console.log(err);
     }
 }
-
 connect();
 
-// const db = new MongoClient('mongodb+srv://nicklans:zoBToADRKsy922sW@cluster0.wajbx.mongodb.net/pomo?retryWrites=true&w=majority').connect()
+// const db = new MongoClient('MONGO_URI').connect()
 //     .then(db => {
 //         console.log('connected!');
 //         app.listen(3000);

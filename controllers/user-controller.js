@@ -9,8 +9,8 @@ exports.postUser = (req, res, next) => {
 
     async function saveUser(user) {
         try {
-            await user.save();
-            // res.json(user);
+            const returnUser = await user.save();
+            console.log(returnUser);
         }
         catch(err) {
             console.log(err);
