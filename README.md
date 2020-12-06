@@ -1,2 +1,2 @@
 # pomo-api
-A custom API for the Pomo study app I built
+A custom API in Node.js for my Pomo study app
