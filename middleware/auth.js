@@ -1,36 +1,29 @@
 const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
-  let headerToken = req.get("Authorization");
+  let token = req.cookies.jwt;
 
-  if (!headerToken) {
-    return res
-      .status(401)
-      .json({ message: "You are not authorized to make this request!" });
+  if (!token) {
+    let err = new Error('You are not authorized to make this request!');
+    err.statusCode = 401;
+    throw err;
   }
-
-  headerToken = req.get("Authorization").split(" ")[1];
 
   let verifiedToken;
 
   try {
-    verifiedToken = jwt.verify(headerToken, process.env.ACCESS_TOKEN);
+    verifiedToken = jwt.verify(token, process.env.ACCESS_TOKEN);
   } catch (err) {
-    return res.status(403).json({ message: err.message });
+    console.log(err);
+    err.statusCode = 403;
+    throw err;
   }
   if (!verifiedToken) {
-    return res
-      .status(401)
-      .json({ message: "You are not authorized to make this request!" });
+    let err = new Error('You are not authorized to make this request!');
+    err.statusCode = 401;
+    throw err;
   }
   req.userId = verifiedToken._id;
-  req.newToken = jwt.sign(
-    {
-      email: verifiedToken.email,
-      _id: verifiedToken._id.toString(),
-    },
-    process.env.ACCESS_TOKEN,
-    { expiresIn: "20s" }
-  );
+  req.token = token;
   next();
 };

@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
@@ -12,6 +13,7 @@ const userRoutes = require("./routes/user-routes.js");
 
 // initialize middleware
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 // CORS
 app.use((req, res, next) => {

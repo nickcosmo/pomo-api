@@ -24,7 +24,9 @@ exports.putUser = async (req, res, next) => {
   try {
     const foundUser = await User.findOne({ email: newUser.email }).exec();
     if (foundUser) {
-      res.status(400).json({ error: "User Already Exists!" });
+      let err = new Error('User already Exists!');
+      err.statusCode = 400;
+      throw err;
     } else {
       const returnUser = await newUser.save();
       res.status(200).json({
@@ -34,7 +36,8 @@ exports.putUser = async (req, res, next) => {
     }
   } catch (err) {
     console.log(err.message);
-    res.status(500).json({ error: err.message });
+    err.statusCode = 500;
+    throw err;
   }
 };
 
@@ -61,22 +64,43 @@ exports.postLogIn = async (req, res, next) => {
             _id: foundUser._id.toString(),
           },
           process.env.ACCESS_TOKEN,
-          { expiresIn: "20s" }
+          { expiresIn: process.env.ACCESS_EXPIRE.toString() }
         );
+        res.cookie("jwt", token, { secure: false, httpOnly: true });
         res.status(200).json({
           message: "Signin Successful!",
-          token: token,
           ...foundUser._doc,
         });
       } else {
-        res.status(404).json({ message: "Password is Incorrect!" });
+        let err = new Error('Password is Incorrect!');
+        err.statusCode = 404;
+        throw err;
       }
     } else {
-      res.status(404).json({ message: "No user found!" });
+      let err = new Error('Email is Incorrect!');
+      err.statusCode = 404;
+      throw err;
     }
   } catch (err) {
     console.log(err.message);
-    res.status(500).json({ error: err.message });
+    err.statusCode = 500;
+    throw err;
+  }
+};
+
+exports.postLogOut = async (req, res, next) => {
+  const userId = req.userId;
+
+  try {
+    const foundUser = User.findOne({ _id: userId });
+    if (foundUser) {
+      res.clearCookie("jwt");
+      res.status(200).json({ message: "Logout Successful!" });
+    }
+  } catch (err) {
+    console.log(err.message);
+    err.statusCode = 500;
+    throw err;
   }
 };
 
@@ -94,34 +118,37 @@ exports.postSettings = async (req, res, next) => {
       { new: true }
     ).exec();
     if (updatedUser) {
-      res
-        .status(200)
-        .json({
-          message: "Post Successful!",
-          token: req.newToken,
-          ...updatedUser._doc,
-        });
+      res.status(200).json({
+        message: "Post Successful!",
+        ...updatedUser._doc,
+      });
     } else {
-      res.status(404).json({ message: "No user found!" });
+      let err = new Error('No user found!');
+      err.statusCode = 404;
+      throw err;
     }
   } catch (err) {
     console.log(err.message);
-    res.status(500).json({ error: err.message });
+    err.statusCode = 500;
+    throw err;
   }
 };
 
-// control is incomplete!
 exports.deleteUser = (req, res, next) => {
-  const userId = req.body.userId;
+  const userId = req.userId;
 
   try {
-    const foundUser = User.findOne({ _id: userId }).exec();
-    if (foundUser) {
-      const deletedUser = User.deleteOne({_id: foundUser._doc._id.toString()});
-      res.status(200).json({message: 'User was deleted successfully.'});
-    }
-  } catch(err) {
+    User.deleteOne({ _id: userId }, (err) => {
+      if(err) {
+        console.log(err.message);
+        err.statusCode = 500;
+        throw err;
+      }
+      res.status(200).json({ message: "User was deleted successfully." });
+    });
+  } catch (err) {
     console.log(err.message);
-    res.status(500).json({ error: err.message });
+    err.statusCode = 500;
+    throw err;
   }
 };
