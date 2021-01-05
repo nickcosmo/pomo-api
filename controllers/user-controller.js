@@ -43,7 +43,6 @@ exports.putUser = async (req, res, next) => {
 
 exports.postLogIn = async (req, res, next) => {
   let userData = new User({
-    name: req.body.name,
     email: req.body.email,
     password: req.body.password,
   });
@@ -66,8 +65,7 @@ exports.postLogIn = async (req, res, next) => {
           process.env.ACCESS_TOKEN,
           { expiresIn: process.env.ACCESS_EXPIRE.toString() }
         );
-        res.cookie("jwt", token, { secure: false, httpOnly: true });
-        res.status(200).json({
+        res.status(200).cookie("jwt", token, { secure: false, httpOnly: true, maxAge: 4.32e7 }).json({
           message: "Signin Successful!",
           ...foundUser._doc,
         });
@@ -79,7 +77,8 @@ exports.postLogIn = async (req, res, next) => {
     } else {
       let err = new Error('Email is Incorrect!');
       err.statusCode = 404;
-      throw err;
+      res.status(404).json({message: 'Incorrect Email'});
+      // throw err;
     }
   } catch (err) {
     console.log(err.message);

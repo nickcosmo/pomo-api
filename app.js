@@ -17,9 +17,10 @@ app.use(cookieParser());
 
 // CORS
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS, POST, DELETE, PUT, PATCH");
-  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
   next();
 });
 
