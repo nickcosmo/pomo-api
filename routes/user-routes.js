@@ -6,18 +6,20 @@
 const express = require("express");
 
 const userController = require("../controllers/user-controller.js");
-const authCheck = require("../middleware/auth.js");
+const auth = require("../middleware/auth.js");
 
 const router = express.Router();
 
 router.put("/sign-up", userController.putUser);
 
-router.post("/log-in", userController.postLogIn);
+router.post("/log-in",  userController.postLogIn);
 
-router.post("/update-settings", authCheck, userController.postSettings);
+router.post("/auto-log-in", auth.autoLogIn, userController.postAutoLogIn);
 
-router.post("/log-out", authCheck, userController.postLogOut);
+router.post("/update-settings", auth.authCheck, userController.postSettings);
 
-router.delete("/delete-user", authCheck, userController.deleteUser);
+router.get("/log-out", auth.authCheck, userController.postLogOut);
+
+router.delete("/delete-user", auth.authCheck, userController.deleteUser);
 
 module.exports = router;

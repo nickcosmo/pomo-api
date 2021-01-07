@@ -29,8 +29,8 @@ app.use(userRoutes);
 
 // error handling middleware
 app.use((err, req, res, next) => {
-  console.log(err);
-  res.statusCode(err.statusCode).json({ message: err.message });
+  console.log(err.message);
+  res.status(err.statusCode).json({ message: err.message });
 });
 
 // port set up and db connection

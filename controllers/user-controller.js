@@ -24,7 +24,7 @@ exports.putUser = async (req, res, next) => {
   try {
     const foundUser = await User.findOne({ email: newUser.email }).exec();
     if (foundUser) {
-      let err = new Error('User already Exists!');
+      let err = new Error("User already Exists!");
       err.statusCode = 400;
       throw err;
     } else {
@@ -37,7 +37,7 @@ exports.putUser = async (req, res, next) => {
   } catch (err) {
     console.log(err.message);
     err.statusCode = 500;
-    throw err;
+    next(err);
   }
 };
 
@@ -60,30 +60,81 @@ exports.postLogIn = async (req, res, next) => {
         const token = jwt.sign(
           {
             email: foundUser.email,
+            password: foundUser.password,
             _id: foundUser._id.toString(),
           },
           process.env.ACCESS_TOKEN,
           { expiresIn: process.env.ACCESS_EXPIRE.toString() }
         );
-        res.status(200).cookie("jwt", token, { secure: false, httpOnly: true, maxAge: 4.32e7 }).json({
-          message: "Signin Successful!",
-          ...foundUser._doc,
-        });
+        res
+          .status(200)
+          .cookie("jwt", token, {
+            secure: false,
+            httpOnly: true,
+            maxAge: 4.32e7,
+          })
+          .json({
+            message: "Signin Successful!",
+            ...foundUser._doc,
+          });
       } else {
-        let err = new Error('Password is Incorrect!');
+        let err = new Error("Password is Incorrect!");
         err.statusCode = 404;
-        throw err;
+        next(err);
       }
     } else {
-      let err = new Error('Email is Incorrect!');
+      let err = new Error("Email is Incorrect!");
       err.statusCode = 404;
-      res.status(404).json({message: 'Incorrect Email'});
-      // throw err;
+      next(err);
     }
   } catch (err) {
     console.log(err.message);
     err.statusCode = 500;
-    throw err;
+    next(err);
+  }
+};
+
+exports.postAutoLogIn = async (req, res, next) => {
+  try {
+    const foundUser = await User.findOne({
+      email: req.body.email,
+    }).exec();
+    if (foundUser) {
+      if (req.body.password === foundUser.password) {
+        const token = jwt.sign(
+          {
+            email: foundUser.email,
+            password: foundUser.password,
+            _id: foundUser._id.toString(),
+          },
+          process.env.ACCESS_TOKEN,
+          { expiresIn: process.env.ACCESS_EXPIRE.toString() }
+        );
+        res
+          .status(200)
+          .cookie("jwt", token, {
+            secure: false,
+            httpOnly: true,
+            maxAge: 4.32e7,
+          })
+          .json({
+            message: "Signin Successful!",
+            ...foundUser._doc,
+          });
+      } else {
+        let err = new Error("auto log in: Password is Incorrect!");
+        err.statusCode = 404;
+        next(err);
+      }
+    } else {
+      let err = new Error("auto log in: Email is Incorrect!");
+      err.statusCode = 404;
+      next(err);
+    }
+  } catch (err) {
+    console.log(err.message);
+    err.statusCode = 500;
+    next(err);
   }
 };
 
@@ -94,12 +145,12 @@ exports.postLogOut = async (req, res, next) => {
     const foundUser = User.findOne({ _id: userId });
     if (foundUser) {
       res.clearCookie("jwt");
-      res.status(200).json({ message: "Logout Successful!" });
+      res.status(200).json({ message: "Log Out Successful!" });
     }
   } catch (err) {
     console.log(err.message);
     err.statusCode = 500;
-    throw err;
+    next(err);
   }
 };
 
@@ -122,14 +173,14 @@ exports.postSettings = async (req, res, next) => {
         ...updatedUser._doc,
       });
     } else {
-      let err = new Error('No user found!');
+      let err = new Error("No user found!");
       err.statusCode = 404;
-      throw err;
+      next(err);
     }
   } catch (err) {
     console.log(err.message);
     err.statusCode = 500;
-    throw err;
+    next(err);
   }
 };
 
@@ -138,7 +189,7 @@ exports.deleteUser = (req, res, next) => {
 
   try {
     User.deleteOne({ _id: userId }, (err) => {
-      if(err) {
+      if (err) {
         console.log(err.message);
         err.statusCode = 500;
         throw err;
@@ -148,6 +199,6 @@ exports.deleteUser = (req, res, next) => {
   } catch (err) {
     console.log(err.message);
     err.statusCode = 500;
-    throw err;
+    next(err);
   }
 };
