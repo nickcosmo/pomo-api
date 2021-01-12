@@ -18,6 +18,12 @@ router.post("/auto-log-in", auth.autoLogIn, userController.postAutoLogIn);
 
 router.post("/update-settings", auth.authCheck, userController.postSettings);
 
+router.post("/update-hours", auth.authCheck, userController.postHours);
+
+// router.post("/update-hours", userController.postHours);
+
+router.get("/get-hours", auth.authCheck, userController.getHours);
+
 router.get("/log-out", auth.authCheck, userController.postLogOut);
 
 router.delete("/delete-user", auth.authCheck, userController.deleteUser);
