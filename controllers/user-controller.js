@@ -277,7 +277,27 @@ exports.postHours = async (req, res, next) => {
 exports.getHours = async (req, res, next) => {
   try {
     let userData = await User.findOne({ _id: req.userId });
-    if (userData) {
+
+    // reset day and weekly hours if applicable
+    let day = new Date();
+    const today = day.getDay();
+    const latestDay = userData.updatedAt.getDay();
+
+    if (latestDay !== today) {
+      userData.progress.todaysHours = 0;
+    }
+
+    if (latestDay === 0 && latestDay !== today) {
+      userData.progress.weekHours = 0;
+    }
+
+    let updatedUser = await User.findByIdAndUpdate(
+      req.userId,
+      { progress: userData.progress },
+      { new: true }
+    ).exec();
+
+    if (updatedUser) {
       res.status(200).json({
         message: "Successful!",
         dailyGoal: userData.settings.dailyGoal,
