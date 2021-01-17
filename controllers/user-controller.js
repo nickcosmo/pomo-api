@@ -1,8 +1,20 @@
 const User = require("../models/user-model.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
 
 exports.putUser = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    // const err = new Error("Validation Failed!");
+    // err.data = errors.array();
+    // err.statusCode = 422;
+    // throw err;
+    return res
+      .status(422)
+      .json({ message: "Validation Failed!", data: errors.array() });
+  }
+
   let newUser = new User({
     name: req.body.name,
     email: req.body.email,
@@ -11,9 +23,9 @@ exports.putUser = async (req, res, next) => {
       studyInterval: 25,
       breakInterval: 5,
       longBreakInterval: 15,
+      dailyGoal: 0,
     },
     progress: {
-      dailyGoal: 0,
       totalHours: 0,
       todaysHours: 0,
       weekHours: 0,
@@ -53,18 +65,20 @@ exports.putUser = async (req, res, next) => {
 };
 
 exports.postLogIn = async (req, res, next) => {
-  let userData = new User({
-    email: req.body.email,
-    password: req.body.password,
-  });
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res
+      .status(422)
+      .json({ message: "Validation Failed!", data: errors.array() });
+  }
 
   try {
     const foundUser = await User.findOne({
-      email: userData.email,
+      email: req.body.email,
     }).exec();
     if (foundUser) {
       const authCheck = await bcrypt.compare(
-        userData.password,
+        req.body.password,
         foundUser.password
       );
       if (authCheck) {
@@ -153,7 +167,7 @@ exports.postLogOut = async (req, res, next) => {
   const userId = req.userId;
 
   try {
-    const foundUser = (await User.findOne({ _id: userId }));
+    const foundUser = await User.findOne({ _id: userId });
     if (foundUser) {
       res.clearCookie("jwt");
       res.status(200).json({ message: "Log Out Successful!" });
@@ -170,6 +184,7 @@ exports.postSettings = async (req, res, next) => {
     studyInterval: req.body.studyInterval,
     breakInterval: req.body.breakInterval,
     longBreakInterval: req.body.longBreakInterval,
+    dailyGoal: req.body.dailyGoal,
   };
 
   try {
@@ -262,18 +277,18 @@ exports.postHours = async (req, res, next) => {
 exports.getHours = async (req, res, next) => {
   try {
     let userData = await User.findOne({ _id: req.userId });
-    if(userData) {
+    if (userData) {
       res.status(200).json({
         message: "Successful!",
-        dailyGoal: userData.dailyGoal,
+        dailyGoal: userData.settings.dailyGoal,
         ...userData.progress,
-      })
+      });
     } else {
       let err = new Error("No user found!");
       err.statusCode = 404;
       next(err);
     }
-  } catch(err) {
+  } catch (err) {
     console.log(err.message);
     err.statusCode = 500;
     next(err);
