@@ -5,6 +5,8 @@
 const express = require("express");
 const { check } = require("express-validator");
 const userController = require("../controllers/user-controller.js");
+const settingsController = require("../controllers/settings-controller.js");
+const progressController = require("../controllers/progress-controller.js");
 const auth = require("../middleware/auth.js");
 
 const router = express.Router();
@@ -44,11 +46,11 @@ router.post(
 
 router.post("/auto-log-in", auth.autoLogIn, userController.postAutoLogIn);
 
-router.post("/update-settings", auth.authCheck, userController.postSettings);
+router.post("/update-settings", auth.authCheck, settingsController.postSettings);
 
-router.post("/update-hours", auth.authCheck, userController.postHours);
+router.post("/update-hours", auth.authCheck, progressController.postHours);
 
-router.get("/get-hours", auth.authCheck, userController.getHours);
+router.get("/get-hours", auth.authCheck, progressController.getHours);
 
 router.get("/log-out", auth.authCheck, userController.postLogOut);
 

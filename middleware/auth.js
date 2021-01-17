@@ -5,7 +5,7 @@ exports.autoLogIn = (req, res, next) => {
   console.log(token.maxAge);
 
   if (!token) {
-    let err = new Error('No Credentials!');
+    let err = new Error("No Credentials!");
     err.statusCode = 401;
     throw err;
   }
@@ -20,7 +20,7 @@ exports.autoLogIn = (req, res, next) => {
     throw err;
   }
   if (!verifiedToken) {
-    let err = new Error('You are not authorized to make this request!');
+    let err = new Error("You are not authorized to make this request!");
     err.statusCode = 401;
     throw err;
   }
@@ -34,7 +34,7 @@ exports.authCheck = (req, res, next) => {
   let token = req.cookies.jwt;
 
   if (!token) {
-    let err = new Error('You are not authorized to make this request!');
+    let err = new Error("You are not authorized to make this request!");
     err.statusCode = 401;
     throw err;
   }
@@ -49,7 +49,7 @@ exports.authCheck = (req, res, next) => {
     throw err;
   }
   if (!verifiedToken) {
-    let err = new Error('You are not authorized to make this request!');
+    let err = new Error("You are not authorized to make this request!");
     err.statusCode = 401;
     throw err;
   }

@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 const app = express();
 
 // import routes
-const userRoutes = require("./routes/user-routes.js");
+const appRoutes = require("./routes/app-routes.js");
 
 // initialize middleware
 app.use(bodyParser.json());
@@ -28,7 +28,7 @@ app.use((req, res, next) => {
 });
 
 // routes
-app.use(userRoutes);
+app.use(appRoutes);
 
 // error handling middleware
 app.use((err, req, res, next) => {
