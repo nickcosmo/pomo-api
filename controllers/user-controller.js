@@ -6,6 +6,7 @@ const { validationResult } = require("express-validator");
 exports.putUser = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    // this does not work in async!
     // const err = new Error("Validation Failed!");
     // err.data = errors.array();
     // err.statusCode = 422;
@@ -47,15 +48,34 @@ exports.putUser = async (req, res, next) => {
   try {
     const foundUser = await User.findOne({ email: newUser.email }).exec();
     if (foundUser) {
-      let err = new Error("User already Exists!");
+      let err = new Error("User already Exists! Please use a different email address.");
       err.statusCode = 400;
       throw err;
     } else {
       const returnUser = await newUser.save();
-      res.status(200).json({
-        message: "User was created successfully!",
-        ...returnUser._doc,
-      });
+      // res.status(200).json({
+      //   message: "User was created successfully!",
+      //   ...returnUser._doc,
+      // });
+      const token = jwt.sign(
+        {
+          email: returnUser.email,
+          _id: returnUser._id.toString(),
+        },
+        process.env.ACCESS_TOKEN,
+        { expiresIn: process.env.ACCESS_EXPIRE.toString() }
+      );
+      res
+        .status(200)
+        .cookie("jwt", token, {
+          secure: false,
+          httpOnly: true,
+          maxAge: 4.32e7,
+        })
+        .json({
+          message: "Signup Successful!",
+          ...returnUser._doc,
+        });
     }
   } catch (err) {
     console.log(err.message);
@@ -85,7 +105,6 @@ exports.postLogIn = async (req, res, next) => {
         const token = jwt.sign(
           {
             email: foundUser.email,
-            password: foundUser.password,
             _id: foundUser._id.toString(),
           },
           process.env.ACCESS_TOKEN,
@@ -125,11 +144,10 @@ exports.postAutoLogIn = async (req, res, next) => {
       email: req.body.email,
     }).exec();
     if (foundUser) {
-      if (req.body.password === foundUser.password) {
+      // if (req.body.password === foundUser.password) {
         const token = jwt.sign(
           {
             email: foundUser.email,
-            password: foundUser.password,
             _id: foundUser._id.toString(),
           },
           process.env.ACCESS_TOKEN,
@@ -146,13 +164,13 @@ exports.postAutoLogIn = async (req, res, next) => {
             message: "Signin Successful!",
             ...foundUser._doc,
           });
-      } else {
-        let err = new Error("auto log in: Password is Incorrect!");
-        err.statusCode = 404;
-        next(err);
-      }
+      // } else {
+      //   let err = new Error("auto log in: Password is Incorrect!");
+      //   err.statusCode = 404;
+      //   next(err);
+      // }
     } else {
-      let err = new Error("auto log in: Email is Incorrect!");
+      let err = new Error("auto log in: Auto Login Failure!");
       err.statusCode = 404;
       next(err);
     }

@@ -26,7 +26,6 @@ exports.autoLogIn = (req, res, next) => {
   }
   req.userId = verifiedToken._id;
   req.body.email = verifiedToken.email;
-  req.body.password = verifiedToken.password;
   next();
 };
 
