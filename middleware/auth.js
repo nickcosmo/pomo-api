@@ -2,7 +2,6 @@ const jwt = require("jsonwebtoken");
 
 exports.autoLogIn = (req, res, next) => {
   let token = req.cookies.jwt;
-  console.log(token.maxAge);
 
   if (!token) {
     let err = new Error("No Credentials!");

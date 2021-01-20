@@ -48,7 +48,9 @@ exports.putUser = async (req, res, next) => {
   try {
     const foundUser = await User.findOne({ email: newUser.email }).exec();
     if (foundUser) {
-      let err = new Error("User already Exists! Please use a different email address.");
+      let err = new Error(
+        "User already Exists! Please use a different email address."
+      );
       err.statusCode = 400;
       throw err;
     } else {
@@ -70,6 +72,11 @@ exports.putUser = async (req, res, next) => {
         .cookie("jwt", token, {
           secure: false,
           httpOnly: true,
+          maxAge: 4.32e7,
+        })
+        .cookie("loggedIn", true, {
+          secure: false,
+          httpOnly: false,
           maxAge: 4.32e7,
         })
         .json({
@@ -117,6 +124,11 @@ exports.postLogIn = async (req, res, next) => {
             httpOnly: true,
             maxAge: 4.32e7,
           })
+          .cookie("loggedIn", true, {
+            secure: false,
+            httpOnly: false,
+            maxAge: 4.32e7,
+          })
           .json({
             message: "Signin Successful!",
             ...foundUser._doc,
@@ -127,7 +139,7 @@ exports.postLogIn = async (req, res, next) => {
         next(err);
       }
     } else {
-      let err = new Error("Email is Incorrect!");
+      let err = new Error("No User Found!");
       err.statusCode = 404;
       next(err);
     }
@@ -145,25 +157,30 @@ exports.postAutoLogIn = async (req, res, next) => {
     }).exec();
     if (foundUser) {
       // if (req.body.password === foundUser.password) {
-        const token = jwt.sign(
-          {
-            email: foundUser.email,
-            _id: foundUser._id.toString(),
-          },
-          process.env.ACCESS_TOKEN,
-          { expiresIn: process.env.ACCESS_EXPIRE.toString() }
-        );
-        res
-          .status(200)
-          .cookie("jwt", token, {
-            secure: false,
-            httpOnly: true,
-            maxAge: 4.32e7,
-          })
-          .json({
-            message: "Signin Successful!",
-            ...foundUser._doc,
-          });
+      const token = jwt.sign(
+        {
+          email: foundUser.email,
+          _id: foundUser._id.toString(),
+        },
+        process.env.ACCESS_TOKEN,
+        { expiresIn: process.env.ACCESS_EXPIRE.toString() }
+      );
+      res
+        .status(200)
+        .cookie("jwt", token, {
+          secure: false,
+          httpOnly: true,
+          maxAge: 4.32e7,
+        })
+        .cookie("loggedIn", true, {
+          secure: false,
+          httpOnly: false,
+          maxAge: 4.32e7,
+        })
+        .json({
+          message: "Signin Successful!",
+          ...foundUser._doc,
+        });
       // } else {
       //   let err = new Error("auto log in: Password is Incorrect!");
       //   err.statusCode = 404;
@@ -188,6 +205,7 @@ exports.postLogOut = async (req, res, next) => {
     const foundUser = await User.findOne({ _id: userId });
     if (foundUser) {
       res.clearCookie("jwt");
+      res.clearCookie("loggedIn");
       res.status(200).json({ message: "Log Out Successful!" });
     }
   } catch (err) {
