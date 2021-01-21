@@ -18,28 +18,33 @@ exports.postHours = async (req, res, next) => {
 
     if (latestDay === 0 && latestDay !== today) {
       userData.progress.weekHours = 0;
+      userData.progress.week = userData.progress.week.forEach((day) => {
+        day = 0;
+      });
     } else {
       userData.progress.weekHours = userData.progress.weekHours + hours;
+
+      if (today === 0) {
+        userData.progress.week.sunday = userData.progress.week.sunday + hours;
+      } else if (today === 1) {
+        userData.progress.week.monday = userData.progress.week.monday + hours;
+      } else if (today === 2) {
+        userData.progress.week.tuesday = userData.progress.week.tuesday + hours;
+      } else if (today === 3) {
+        userData.progress.week.wednesday =
+          userData.progress.week.wednesday + hours;
+      } else if (today === 4) {
+        userData.progress.week.thursday =
+          userData.progress.week.thursday + hours;
+      } else if (today === 5) {
+        userData.progress.week.friday = userData.progress.week.friday + hours;
+      } else if (today === 6) {
+        userData.progress.week.saturday =
+          userData.progress.week.saturday + hours;
+      }
     }
 
     userData.progress.totalHours = userData.progress.totalHours + hours;
-
-    if (today === 0) {
-      userData.progress.week.sunday = userData.progress.week.sunday + hours;
-    } else if (today === 1) {
-      userData.progress.week.monday = userData.progress.week.monday + hours;
-    } else if (today === 2) {
-      userData.progress.week.tuesday = userData.progress.week.tuesday + hours;
-    } else if (today === 3) {
-      userData.progress.week.wednesday =
-        userData.progress.week.wednesday + hours;
-    } else if (today === 4) {
-      userData.progress.week.thursday = userData.progress.week.thursday + hours;
-    } else if (today === 5) {
-      userData.progress.week.friday = userData.progress.week.friday + hours;
-    } else if (today === 6) {
-      userData.progress.week.saturday = userData.progress.week.saturday + hours;
-    }
 
     let updatedUser = await User.findByIdAndUpdate(
       req.userId,
