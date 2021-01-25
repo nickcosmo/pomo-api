@@ -55,10 +55,6 @@ exports.putUser = async (req, res, next) => {
       throw err;
     } else {
       const returnUser = await newUser.save();
-      // res.status(200).json({
-      //   message: "User was created successfully!",
-      //   ...returnUser._doc,
-      // });
       const token = jwt.sign(
         {
           email: returnUser.email,
@@ -72,12 +68,12 @@ exports.putUser = async (req, res, next) => {
         .cookie("jwt", token, {
           secure: false,
           httpOnly: true,
-          maxAge: 4.32e7,
+          maxAge: 3.6e7,
         })
         .cookie("loggedIn", true, {
           secure: false,
           httpOnly: false,
-          maxAge: 4.32e7,
+          maxAge: 3.6e7,
         })
         .json({
           message: "Signup Successful!",
@@ -122,12 +118,12 @@ exports.postLogIn = async (req, res, next) => {
           .cookie("jwt", token, {
             secure: false,
             httpOnly: true,
-            maxAge: 4.32e7,
+            maxAge: 3.6e7,
           })
           .cookie("loggedIn", true, {
             secure: false,
             httpOnly: false,
-            maxAge: 4.32e7,
+            maxAge: 3.6e7,
           })
           .json({
             message: "Signin Successful!",
@@ -156,7 +152,6 @@ exports.postAutoLogIn = async (req, res, next) => {
       email: req.body.email,
     }).exec();
     if (foundUser) {
-      // if (req.body.password === foundUser.password) {
       const token = jwt.sign(
         {
           email: foundUser.email,
@@ -170,22 +165,17 @@ exports.postAutoLogIn = async (req, res, next) => {
         .cookie("jwt", token, {
           secure: false,
           httpOnly: true,
-          maxAge: 4.32e7,
+          maxAge: 3.6e7,
         })
         .cookie("loggedIn", true, {
           secure: false,
           httpOnly: false,
-          maxAge: 4.32e7,
+          maxAge: 3.6e7,
         })
         .json({
           message: "Signin Successful!",
           ...foundUser._doc,
         });
-      // } else {
-      //   let err = new Error("auto log in: Password is Incorrect!");
-      //   err.statusCode = 404;
-      //   next(err);
-      // }
     } else {
       let err = new Error("auto log in: Auto Login Failure!");
       err.statusCode = 404;

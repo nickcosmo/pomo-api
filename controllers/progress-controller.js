@@ -1,3 +1,6 @@
+var moment = require("moment");
+moment().format();
+
 const User = require("../models/user-model.js");
 
 exports.postHours = async (req, res, next) => {
@@ -74,16 +77,26 @@ exports.getHours = async (req, res, next) => {
     let userData = await User.findOne({ _id: req.userId });
 
     // reset day and weekly hours if applicable
-    let day = new Date();
-    const today = day.getDay();
+
+    let today = moment().day();
     const latestDay = userData.updatedAt.getDay();
+
+    const currWeek = moment().week();
+    const lastWeek = moment(userData.updatedAt).week();
 
     if (latestDay !== today) {
       userData.progress.todaysHours = 0;
     }
 
-    if (latestDay === 0 && latestDay !== today) {
+    if (lastWeek < currWeek) {
       userData.progress.weekHours = 0;
+      userData.progress.week.monday = 0;
+      userData.progress.week.tuesday = 0;
+      userData.progress.week.wednesday = 0;
+      userData.progress.week.thursday = 0;
+      userData.progress.week.friday = 0;
+      userData.progress.week.saturday = 0;
+      userData.progress.week.sunday = 0;
     }
 
     let updatedUser = await User.findByIdAndUpdate(
