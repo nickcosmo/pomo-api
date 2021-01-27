@@ -2,9 +2,10 @@
   "name": "pomo-api",
   "version": "1.0.0",
   "description": "api for pomo app",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "node app.js",
+    "serve": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Nick Lansing",

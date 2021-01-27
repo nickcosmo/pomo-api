@@ -5,11 +5,14 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 const cookieParser = require("cookie-parser");
+// const helmet = require("helmet");
 
 const app = express();
 
 // import routes
 const appRoutes = require("./routes/app-routes.js");
+
+// app.use(helmet());
 
 // initialize middleware
 app.use(bodyParser.json());
@@ -53,7 +56,7 @@ async function connect() {
       useUnifiedTopology: true,
     };
     await mongoose.connect(process.env.MONGO_URI, options);
-    app.listen(3000);
+    app.listen(8080);
     console.log("connected!");
   } catch (err) {
     console.log("connection failed", err);
