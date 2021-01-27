@@ -11,10 +11,6 @@ const auth = require("../middleware/auth.js");
 
 const router = express.Router();
 
-router.get("/", (req, res, next) => {
-  res.send("Jesse iz gay!");
-})
-
 router.put(
   "/sign-up",
   [
