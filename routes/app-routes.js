@@ -1,7 +1,3 @@
-// TODO:
-// refresh token route --> do this last
-// update account info route --> may not be required!
-
 const express = require("express");
 const { check } = require("express-validator");
 const userController = require("../controllers/user-controller.js");

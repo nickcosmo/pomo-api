@@ -66,12 +66,12 @@ exports.putUser = async (req, res, next) => {
       res
         .status(200)
         .cookie("jwt", token, {
-          secure: false,
+          secure: true,
           httpOnly: true,
           maxAge: 3.6e7,
         })
         .cookie("loggedIn", true, {
-          secure: false,
+          secure: true,
           httpOnly: false,
           maxAge: 3.6e7,
         })
@@ -116,12 +116,12 @@ exports.postLogIn = async (req, res, next) => {
         res
           .status(200)
           .cookie("jwt", token, {
-            secure: false,
+            secure: true,
             httpOnly: true,
             maxAge: 3.6e7,
           })
           .cookie("loggedIn", true, {
-            secure: false,
+            secure: true,
             httpOnly: false,
             maxAge: 3.6e7,
           })
@@ -163,12 +163,12 @@ exports.postAutoLogIn = async (req, res, next) => {
       res
         .status(200)
         .cookie("jwt", token, {
-          secure: false,
+          secure: true,
           httpOnly: true,
           maxAge: 3.6e7,
         })
         .cookie("loggedIn", true, {
-          secure: false,
+          secure: true,
           httpOnly: false,
           maxAge: 3.6e7,
         })

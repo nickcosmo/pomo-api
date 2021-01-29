@@ -5,22 +5,28 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 const cookieParser = require("cookie-parser");
-// const helmet = require("helmet");
+const helmet = require("helmet");
+const compression = require("compression");
 
 const app = express();
+
+// set up for serving vue
+const path = __dirname + '/dist/';
+app.use(express.static(path));
 
 // import routes
 const appRoutes = require("./routes/app-routes.js");
 
-// app.use(helmet());
-
 // initialize middleware
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(helmet());
+app.use(compression());
 
 // CORS
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.setHeader("Access-Control-Allow-Origin", process.env.CLIENT_URL);
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, OPTIONS, POST, DELETE, PUT, PATCH"
@@ -32,6 +38,30 @@ app.use((req, res, next) => {
 
 // routes
 app.use(appRoutes);
+
+app.get('/', function (req,res) {
+  res.sendFile(path + "index.html");
+});
+
+app.get('/timer', function (req,res) {
+  res.sendFile(path + "index.html");
+});
+
+app.get('/signin', function (req,res) {
+  res.sendFile(path + "index.html");
+});
+
+app.get('/signup', function (req,res) {
+  res.sendFile(path + "index.html");
+});
+
+app.get('/dashboard', function (req,res) {
+  res.sendFile(path + "index.html");
+});
+
+app.get('/settings', function (req,res) {
+  res.sendFile(path + "index.html");
+});
 
 // error handling middleware
 app.use((err, req, res, next) => {
