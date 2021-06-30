@@ -1,57 +1,54 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
 exports.autoLogIn = (req, res, next) => {
-  let token = req.cookies.jwt;
+    try {
+        if (req.cookies.hasOwnProperty('jwt') == false) {
+            let err = new Error('You are not authorized to make this request!');
+            err.statusCode = 401;
+            throw err;
+        }
 
-  if (!token) {
-    let err = new Error("No Credentials!");
-    err.statusCode = 401;
-    throw err;
-  }
+        let token = req.cookies.jwt;
 
-  let verifiedToken;
+        let verifiedToken = jwt.verify(token, process.env.ACCESS_TOKEN);
 
-  try {
-    verifiedToken = jwt.verify(token, process.env.ACCESS_TOKEN);
-  } catch (err) {
-    console.log(err);
-    err.statusCode = 403;
-    throw err;
-  }
-  if (!verifiedToken) {
-    let err = new Error("You are not authorized to make this request!");
-    err.statusCode = 401;
-    throw err;
-  }
-  req.userId = verifiedToken._id;
-  req.body.email = verifiedToken.email;
-  next();
+        if (!verifiedToken) {
+            let err = new Error('You are not authorized to make this request!');
+            err.statusCode = 401;
+            throw err;
+        }
+        req.userId = verifiedToken._id;
+        req.body.email = verifiedToken.email;
+        next();
+        return;
+    } catch (err) {
+        // console.log(err);
+        err.statusCode = 403;
+        next(err);
+        return err;
+    }
 };
 
 exports.authCheck = (req, res, next) => {
-  let token = req.cookies.jwt;
+    try {
+        if (req.cookies.hasOwnProperty('jwt') == false) {
+            let err = new Error('You are not authorized to make this request!');
+            err.statusCode = 401;
+            throw err;
+        }
 
-  if (!token) {
-    let err = new Error("You are not authorized to make this request!");
-    err.statusCode = 401;
-    throw err;
-  }
+        let token = req.cookies.jwt;
+        let verifiedToken = jwt.verify(token, process.env.ACCESS_TOKEN);
 
-  let verifiedToken;
+        req.userId = verifiedToken._id;
+        req.token = token;
 
-  try {
-    verifiedToken = jwt.verify(token, process.env.ACCESS_TOKEN);
-  } catch (err) {
-    console.log(err);
-    err.statusCode = 403;
-    throw err;
-  }
-  if (!verifiedToken) {
-    let err = new Error("You are not authorized to make this request!");
-    err.statusCode = 401;
-    throw err;
-  }
-  req.userId = verifiedToken._id;
-  req.token = token;
-  next();
+        next();
+        return;
+    } catch (err) {
+        // console.log(err.message);
+        err.statusCode = 403;
+        next(err);
+        return err;
+    }
 };
